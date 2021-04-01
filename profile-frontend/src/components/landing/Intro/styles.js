@@ -21,7 +21,7 @@ export const Details = styled.div`
 
   h1 {
     margin-bottom: 2rem;
-    font-size: 26pt; // TODO: change the font size to 36
+    font-size: 36pt; // TODO: change the font size to 36
     color: ${({ theme }) => (theme === "light" ? "#212121" : "#fff")};
 
     @media (max-width: 960px) {
