@@ -5,6 +5,12 @@ import * as Yup from 'yup';
 import { Button, Input } from 'components/common';
 import { Error, Center, InputField, Wrapper } from './styles';
 
+const encode = (data) => {
+  return Object.keys(data)
+    .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
+    .join("&");
+}
+
 export default () => (
   <Wrapper>
     <h2>Contact</h2>
@@ -17,37 +23,29 @@ export default () => (
       }}
       validationSchema={Yup.object().shape({
         name: Yup.string().required('Full name field is required'),
-        email: Yup.string()
+        email: Yup.string().email("Invalid email")
           // TODO: add the email validation here
           .required('Email field is required'),
         message: Yup.string().required('Message field is required'),
       })}
-      onSubmit={async ({ name, email, message }, { setSubmitting, resetForm, setFieldValue }) => {
-        try {
-          await axios({
-            method: 'POST',
-            url: `${process.env.BACKEND_URL}`,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            data: JSON.stringify({
-              name,
-              email,
-              message,
-            }),
-          });
-          setSubmitting(false);
-          setFieldValue('success', true);
-          setTimeout(() => resetForm(), 6000);
-        } catch (err) {
-          setSubmitting(false);
-          setFieldValue('success', false);
-          alert("Something went wrong, please try again!"); // eslint-disable-line
-        }
+      onSubmit={(values, actions) => {
+        fetch("/", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: encode({ "form-name": "contact-demo", ...values })
+        })
+        .then(() => {
+            alert("I'll get back to you ASAP!");
+            actions.resetForm()
+        })
+        .catch(() => {
+            alert('Error');
+        })
+        .finally(() => actions.setSubmitting(false))
       }}
     >
       {({ values, touched, errors, setFieldValue, isSubmitting }) => (
-        <Form>
+        <Form name="contact-demo" data-netlify={true}>
           <InputField>
             <Input
               as={FastField}
